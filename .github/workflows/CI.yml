@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  check-target-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close Pull
+        uses: peter-evans/close-pull@v2
+        if: (github.base_ref == 'main' && github.head_ref != 'dev' && github.actor != 'dragoonDorise' && github.actor != 'Godsbane' && !github.pull_request.title.includes('hotfix'))
+        with:
+          comment: Only hotfixes should be merged directly into main
+  shellcheck:
+    runs-on: ubuntu-latest
+    needs: [check-target-branch]
+    steps:
+      - uses: actions/checkout@v3
+      - name: ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        # env:
+          # SHELLCHECK_OPTS: -e SC2059 -e SC2034 -e SC1090 -e SC2164 -e SC1091
+  shfmt:
+    runs-on: ubuntu-latest
+    needs: [check-target-branch]
+    steps:
+      - uses: actions/checkout@v3
+      - name: shfmt
+        uses: collin-miller/shfmt-action@v1
+        with:
+          args: -d .
+  markdownlint:
+    runs-on: ubuntu-latest
+    needs: [check-target-branch]
+    steps:
+      - uses: actions/checkout@v3
+      - name: markdownlint-cli
+        uses: nosborn/github-action-markdown-cli@v3.1.0
+        with:
+          files: .
+  PSScriptAnalyzer:
+    runs-on: ubuntu-latest
+    needs: [check-target-branch]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run PSScriptAnalyzer
+        uses: microsoft/psscriptanalyzer-action@v1.0
+  toml-lint:
+    runs-on: ubuntu-latest
+    needs: [check-target-branch]
+    steps:
+      - uses: actions/checkout@v3
+      - name: TOML linter
+        uses: yisonPylkita/gh-action-toml-linter@0.1.3
