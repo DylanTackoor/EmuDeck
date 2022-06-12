@@ -9,6 +9,15 @@ on:
   workflow_dispatch:
 
 jobs:
+  check-target-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close Pull
+        uses: peter-evans/close-pull@v2
+        if: |
+          (github.base_ref == "main" && github.head_ref != "dev" && github.actor != "dragoonDorise" && github.actor != "Godsbane" && !github.pull_request.title.includes("hotfix"))
+        with:
+          comment: Only hotfixes should be merged directly into main
   shellcheck:
     runs-on: ubuntu-latest
     steps:
