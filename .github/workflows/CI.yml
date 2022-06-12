@@ -20,6 +20,7 @@ jobs:
           comment: Only hotfixes should be merged directly into main
   shellcheck:
     runs-on: ubuntu-latest
+    needs: [check-target-branch]
     steps:
       - uses: actions/checkout@v3
       - name: ShellCheck
@@ -28,6 +29,7 @@ jobs:
           # SHELLCHECK_OPTS: -e SC2059 -e SC2034 -e SC1090 -e SC2164 -e SC1091
   shfmt:
     runs-on: ubuntu-latest
+    needs: [check-target-branch]
     steps:
       - uses: actions/checkout@v3
       - name: shfmt
@@ -36,6 +38,7 @@ jobs:
           args: -d .
   markdownlint:
     runs-on: ubuntu-latest
+    needs: [check-target-branch]
     steps:
       - uses: actions/checkout@v3
       - name: markdownlint-cli
@@ -44,12 +47,14 @@ jobs:
           files: .
   PSScriptAnalyzer:
     runs-on: ubuntu-latest
+    needs: [check-target-branch]
     steps:
       - uses: actions/checkout@v3
       - name: Run PSScriptAnalyzer
         uses: microsoft/psscriptanalyzer-action@v1.0
   toml-lint:
     runs-on: ubuntu-latest
+    needs: [check-target-branch]
     steps:
       - uses: actions/checkout@v3
       - name: TOML linter
